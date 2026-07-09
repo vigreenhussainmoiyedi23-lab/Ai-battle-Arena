@@ -39,10 +39,12 @@ function getText(content: string | unknown[]): string {
   return JSON.stringify(content);
 }
 const solutionNode: GraphNode<typeof State> = async (state) => {
+  console.time("solution");
   const [res1, res2] = await Promise.all([
     cohereModel.invoke(state.messages),
     mistralModel.invoke(state.messages),
   ]);
+  console.timeEnd("solution");
   return {
     messages: state.messages,
     solution_1: getText(res1.content),
@@ -51,6 +53,7 @@ const solutionNode: GraphNode<typeof State> = async (state) => {
 };
 const judgeNode: GraphNode<typeof State> = async (state) => {
   try {
+    console.time("judge");
     const response = await judge.invoke({
       messages: [
         new SystemMessage(
@@ -83,7 +86,7 @@ The JSON schema is:
         `),
       ],
     });
-
+    console.timeEnd("judge");
     if (!response.messages[response.messages.length - 1])
       return {
         judgement: {
