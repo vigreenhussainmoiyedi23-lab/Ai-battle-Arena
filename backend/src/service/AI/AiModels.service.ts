@@ -1,7 +1,7 @@
 import { ChatGoogle } from "@langchain/google";
 import { ChatMistralAI } from "@langchain/mistralai";
 import { ChatCohere } from "@langchain/cohere";
-import config from "../config/config.js";
+import config from "../../config/config.js";
 
 export const cohereModel = new ChatCohere({
   model: "command-a-03-2025",

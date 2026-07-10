@@ -53,7 +53,6 @@ const solutionNode: GraphNode<typeof State> = async (state) => {
 };
 const judgeNode: GraphNode<typeof State> = async (state) => {
   try {
-    console.time("judge");
     const response = await judge.invoke({
       messages: [
         new SystemMessage(
@@ -86,37 +85,22 @@ The JSON schema is:
         `),
       ],
     });
-    console.timeEnd("judge");
-    if (!response.messages[response.messages.length - 1])
-      return {
-        judgement: {
-          solution_1_score: 10,
-          solution_2_score: 10,
-          recommendation: "tie",
-        },
-      };
+    console.dir(response, { depth: null });
+    const lastMessage = response.messages.at(-1);
 
-    if (
-      typeof response.messages[response.messages.length - 1]?.content ===
-      "string"
-    ) {
-      const judgement = JSON.parse(
-        response.messages[response.messages.length - 1].content || "{}",
-      );
-      if (judgement) {
-        return {
-          judgement,
-        };
-      } else {
-        return {
-          judgement: {
-            solution_1_score: 10,
-            solution_2_score: 10,
-            recommendation: "tie",
-          },
-        };
-      }
+    const fallback = {
+      solution_1_score: 10,
+      solution_2_score: 10,
+      recommendation: "tie",
+    };
+
+    if (!lastMessage || typeof lastMessage.content !== "string") {
+      return { judgement: fallback };
     }
+
+    const judgement = JSON.parse(lastMessage.content);
+
+    return { judgement };
   } catch (error) {
     return {
       judgement: {
@@ -127,6 +111,7 @@ The JSON schema is:
     };
   }
 };
+
 const graph = new StateGraph(State)
   .addNode("solution", solutionNode)
   .addNode("judge", judgeNode)
