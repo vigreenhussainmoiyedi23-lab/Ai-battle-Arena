@@ -1,0 +1,20 @@
+{
+  "name": "ai-battle-arena",
+  "version": "1.0.0",
+  "description": "ai battele arena",
+  "homepage": "https://github.com/vigreenhussainmoiyedi23-lab/Ai-battle-Arena#readme",
+  "bugs": {
+    "url": "https://github.com/vigreenhussainmoiyedi23-lab/Ai-battle-Arena/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vigreenhussainmoiyedi23-lab/Ai-battle-Arena.git"
+  },
+  "license": "ISC",
+  "author": "Hussain Moiyedi",
+  "type": "module",
+  "main": "server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
