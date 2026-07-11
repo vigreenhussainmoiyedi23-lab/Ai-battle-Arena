@@ -14,6 +14,18 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    solutionNumber: {
+      type: Number,
+      default: 0, // means user did the message
+    },
+    preferredByUser: {
+      type: Boolean,
+      default: false,
+    },
+    preferredByAi: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

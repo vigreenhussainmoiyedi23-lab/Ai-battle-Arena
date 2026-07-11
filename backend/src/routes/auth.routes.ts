@@ -81,16 +81,22 @@ router.get("/logout", (req, res) => {
   });
 });
 
-router.get("/get-me", IsUser, async (req, res) => {
+router.get("/get-me", IsUser, async (req:any, res) => {
+  if (!req.user) {
+    return sendResponse({
+      status: 401,
+      json: { message: "Unauthorized" },
+      res,
+    });
+  }
 
-  const user=await userModel.findById(req.user);
+  const user = await userModel.findById(req.user);
 
   sendResponse({
     status: 200,
     json: { user },
     res,
   });
-
 });
 
 export default router;
