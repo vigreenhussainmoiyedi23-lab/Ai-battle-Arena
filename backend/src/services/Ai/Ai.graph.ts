@@ -30,7 +30,7 @@ const solutionNode: GraphNode<typeof AIBATTLESTATE> = async function (state) {
   try {
     console.time("solution");
     const [res1, res2] = await Promise.all([
-      mistralModel.invoke(state.messages),
+      geminiModel.invoke(state.messages),
       cohereModel.invoke(state.messages),
     ]);
     console.timeEnd("solution");
@@ -53,7 +53,7 @@ const solutionNode: GraphNode<typeof AIBATTLESTATE> = async function (state) {
 const judgenNode: GraphNode<typeof AIBATTLESTATE> = async function (state) {
   try {
     console.time("judgement");
-    const structuredModel = geminiModel.withStructuredOutput(JudgeSchema);
+    const structuredModel = mistralModel.withStructuredOutput(JudgeSchema);
     const prompt: string = `
 Solution 1:
 ${state.solution1}
