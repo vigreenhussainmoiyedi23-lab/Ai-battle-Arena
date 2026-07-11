@@ -8,8 +8,10 @@ function IsUser(req: any, res: any, next: any) {
       message: "Unauthorized! No Token Provided",
     });
   try {
-    const decoded = jwt.verify(token, config.JWT_SECRET_KEY);
-    req.user = decoded.id;
+    const decoded: any = jwt.verify(token, config.JWT_SECRET_KEY);
+    if (decoded?.id && typeof decoded === "object") {
+      req.user = decoded.id;
+    }
     next();
   } catch (error) {
     return res.status(403).json({
