@@ -2,7 +2,13 @@ import { ChatCohere } from "@langchain/cohere";
 import { ChatGoogle } from "@langchain/google";
 import { ChatMistralAI } from "@langchain/mistralai";
 import config from "../../configs/config.js";
+import { ChatGroq } from "@langchain/groq";
 
+const GroqModel = new ChatGroq({
+  model: "openai/gpt-oss-20b",
+  apiKey: config.GROQ_API_KEY,
+  temperature: 0,
+});
 const cohereModel = new ChatCohere({
   model: "command-a-03-2025",
   apiKey: config.COHERE_API_KEY,
@@ -19,4 +25,4 @@ const mistralModel = new ChatMistralAI({
   apiKey: config.MISTRAL_API_KEY,
 });
 
-export { cohereModel, geminiModel, mistralModel };
+export { cohereModel, geminiModel, mistralModel,GroqModel };

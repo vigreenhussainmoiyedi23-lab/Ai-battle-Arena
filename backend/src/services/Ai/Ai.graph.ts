@@ -8,13 +8,17 @@ import {
   END,
 } from "@langchain/langgraph";
 import { z } from "zod/v4";
-import { cohereModel, geminiModel, mistralModel } from "./AI.model.js";
+import { cohereModel, geminiModel, GroqModel, mistralModel } from "./AI.model.js";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+
+
+
 const JudgeSchema = z.object({
   solution1Score: z.number().default(0),
   solution2Score: z.number().default(0),
   recommendation: z.enum(["solution1", "solution2", "tie"]),
 });
+
 const AIBATTLESTATE = new StateSchema({
   messages: MessagesValue,
   solution1: z.string().default(""),
@@ -30,7 +34,7 @@ const solutionNode: GraphNode<typeof AIBATTLESTATE> = async function (state) {
   try {
     console.time("solution");
     const [res1, res2] = await Promise.all([
-      geminiModel.invoke(state.messages),
+      GroqModel.invoke(state.messages),
       cohereModel.invoke(state.messages),
     ]);
     console.timeEnd("solution");
@@ -55,13 +59,14 @@ const judgenNode: GraphNode<typeof AIBATTLESTATE> = async function (state) {
     console.time("judgement");
     const structuredModel = mistralModel.withStructuredOutput(JudgeSchema);
     const prompt: string = `
+    human: ${state.messages[state.messages.length - 1]!.content}
 Solution 1:
 ${state.solution1}
 
 Solution 2:
 ${state.solution2}
 
-Judge these solutions.
+Judge these solutions on a scale-of 1 to 10 10 being the best response and 1 being the worst.
 `;
 
     console.log("Judge prompt chars:", prompt.length);
