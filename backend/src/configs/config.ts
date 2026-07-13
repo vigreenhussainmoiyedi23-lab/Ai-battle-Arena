@@ -8,6 +8,7 @@ type CONFIG = {
   MONGO_URI: string;
   JWT_SECRET_KEY: string;
   NODE_ENV: string;
+  FRONTEND_URL: string;
 };
 const config: CONFIG = {
   port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
@@ -18,6 +19,7 @@ const config: CONFIG = {
   MONGO_URI: process.env.MONGO_URI || "",
   JWT_SECRET_KEY: process.env.JWT_SECRET_KEY || "",
   NODE_ENV: process.env.NODE_ENV || "development",
+  FRONTEND_URL: process.env.FRONTEND_URL || "",
 };
 
 export default config;

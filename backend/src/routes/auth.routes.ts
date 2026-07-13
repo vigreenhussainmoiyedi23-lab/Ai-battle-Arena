@@ -45,10 +45,11 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password }: { email: string; password: string } = req.body;
+    
     const user = await userModel.findOne({ email }).select("+password");
     if (!user) {
       return sendResponse({
-        status: 404,
+        status: 401,
         json: { message: "Incorrect Credentials" },
         res,
       });
@@ -57,7 +58,7 @@ router.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password!);
     if (!isPasswordValid) {
       return sendResponse({
-        status: 404,
+        status: 401,
         json: { message: "Incorrect Credentials" },
         res,
       });
@@ -81,7 +82,7 @@ router.get("/logout", (req, res) => {
   });
 });
 
-router.get("/get-me", IsUser, async (req:any, res) => {
+router.get("/get-me", IsUser, async (req: any, res) => {
   if (!req.user) {
     return sendResponse({
       status: 401,
@@ -91,6 +92,7 @@ router.get("/get-me", IsUser, async (req:any, res) => {
   }
 
   const user = await userModel.findById(req.user);
+  console.log(user);
 
   sendResponse({
     status: 200,

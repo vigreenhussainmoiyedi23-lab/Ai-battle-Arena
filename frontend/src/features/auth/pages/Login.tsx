@@ -1,63 +1,231 @@
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import Input from "../components/Input";
+import { useAuth } from "../hooks/useAuth";
+import { useAppSelector } from "../../../app/redux/hook";
+import ShowError from "../components/ShowError";
 
 export interface LoginData {
   email: string;
   password: string;
 }
 
+/* ── SVG Icons ── */
+const EmailIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.8}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+    />
+  </svg>
+);
+
+const LockIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.8}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+    />
+  </svg>
+);
+
 export default function Login() {
   const { register, handleSubmit } = useForm<LoginData>();
-
-  function submitHandler(data: LoginData) {
+  const { loginHandler } = useAuth();
+  async function submitHandler(data: LoginData) {
     console.log(data);
+    await loginHandler(data);
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 flex items-center justify-center px-4">
-      <form
-        onSubmit={handleSubmit(submitHandler)}
-        className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900 block p-8 shadow-2xl"
-      >
-        <h1 className="text-3xl font-bold text-white ">Welcome Back</h1>
+    <main
+      className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
+      style={{ background: "var(--bg-floor)" }}
+    >
+      {/* Ambient background glows */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(0,210,255,0.05) 0%, rgba(168,85,247,0.04) 40%, transparent 70%)",
+          animation: "bgFloat 8s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(0,210,255,0.06) 0%, transparent 70%)",
+          filter: "blur(40px)",
+        }}
+      />
+      <div
+        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 70%)",
+          filter: "blur(40px)",
+        }}
+      />
 
-        <p className="mt-2 text-zinc-400">
-          Login to continue.
+      {/* Login Card */}
+      <div
+        className="glass relative z-10 w-full max-w-[440px] rounded-2xl p-8 animate-fade-in"
+        style={{
+          boxShadow:
+            "0 0 0 1px rgba(0,210,255,0.08), 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(0,210,255,0.05)",
+        }}
+      >
+        {/* Brand Header */}
+        <div className="flex flex-col items-center mb-7 gap-3">
+          <div
+            className="flex items-center justify-center w-14 h-14 rounded-xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(0,210,255,0.15), rgba(168,85,247,0.15))",
+              border: "1px solid rgba(0,210,255,0.2)",
+              boxShadow: "0 0 20px rgba(0,210,255,0.15)",
+            }}
+          >
+            {/* Sword/Shield icon */}
+            <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+              <path
+                d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"
+                fill="url(#logoGrad)"
+                opacity="0.9"
+              />
+              <path
+                d="M12 6L9 8v3.5c0 2.5 1.5 4.8 3 5.5 1.5-.7 3-3 3-5.5V8L12 6z"
+                fill="rgba(255,255,255,0.8)"
+              />
+              <defs>
+                <linearGradient
+                  id="logoGrad"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stopColor="#00d2ff" />
+                  <stop offset="100%" stopColor="#a855f7" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div className="text-center">
+            <h2
+              className="text-xs font-bold tracking-[0.2em] uppercase"
+              style={{ color: "var(--text-muted)" }}
+            >
+              AI BATTLE ARENA
+            </h2>
+            <p
+              className="text-sm mt-0.5"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Enter the Arena
+            </p>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div
+          className="h-px mb-7"
+          style={{ background: "var(--border-subtle)" }}
+        />
+
+        {/* Form heading */}
+        <h1 className="text-2xl font-bold text-white mb-1">Welcome Back</h1>
+        <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>
+          Sign in to continue your battle.
         </p>
 
-        <div className="mt-8 space-y-5 flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit(submitHandler)}
+          className="flex flex-col gap-4"
+        >
           <Input<LoginData>
             register={register}
             name="email"
             type="email"
-            placeholder="Email"
+            placeholder="Enter your email"
+            icon={<EmailIcon />}
           />
 
           <Input<LoginData>
             register={register}
             name="password"
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
+            icon={<LockIcon />}
+          />
+          <ShowError />
+          {/* <div className="flex justify-end">
+            <button
+              type="button"
+              className="text-xs transition-colors"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Forgot password?
+            </button>
+          </div> */}
+
+          <button
+            type="submit"
+            className="btn-primary mt-1 h-12 w-full rounded-lg text-sm"
+          >
+            Sign In
+          </button>
+        </form>
+
+        {/* Divider OR */}
+        <div className="flex items-center gap-3 my-5">
+          <div
+            className="flex-1 h-px"
+            style={{ background: "var(--border-subtle)" }}
+          />
+          <span
+            className="text-xs font-medium"
+            style={{ color: "var(--text-muted)" }}
+          >
+            OR
+          </span>
+          <div
+            className="flex-1 h-px"
+            style={{ background: "var(--border-subtle)" }}
           />
         </div>
 
-        <button
-          className="mt-8 h-12 w-full rounded-lg bg-blue-600 font-semibold text-white transition hover:bg-blue-500"
+        <p
+          className="text-center text-sm"
+          style={{ color: "var(--text-secondary)" }}
         >
-          Login
-        </button>
-
-        <p className="mt-6 text-center text-sm text-zinc-400">
           Don't have an account?{" "}
           <Link
             to="/register"
-            className="font-medium text-blue-400 hover:text-blue-300"
+            className="font-semibold transition-colors"
+            style={{ color: "var(--cyan)" }}
           >
             Register
           </Link>
         </p>
-      </form>
+      </div>
     </main>
   );
 }
