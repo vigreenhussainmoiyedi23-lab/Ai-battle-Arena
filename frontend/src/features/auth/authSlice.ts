@@ -5,6 +5,7 @@ type User = {
     _id: string;
     username: string;
     email: string;
+    tokens: number;
 };
 
 type AuthState = {

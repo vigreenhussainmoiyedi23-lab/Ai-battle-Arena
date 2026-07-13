@@ -2,54 +2,20 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import Input from "../components/Input";
 import { useAuth } from "../hooks/useAuth";
-import { useAppSelector } from "../../../app/redux/hook";
 import ShowError from "../components/ShowError";
+import { Lock, Mail } from "lucide-react";
 
 export interface LoginData {
   email: string;
   password: string;
 }
 
-/* ── SVG Icons ── */
-const EmailIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={1.8}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-    />
-  </svg>
-);
 
-const LockIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={1.8}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-    />
-  </svg>
-);
 
 export default function Login() {
   const { register, handleSubmit } = useForm<LoginData>();
   const { loginHandler } = useAuth();
   async function submitHandler(data: LoginData) {
-    console.log(data);
     await loginHandler(data);
   }
 
@@ -165,7 +131,7 @@ export default function Login() {
             name="email"
             type="email"
             placeholder="Enter your email"
-            icon={<EmailIcon />}
+            icon={<Mail width={16} />}
           />
 
           <Input<LoginData>
@@ -173,7 +139,7 @@ export default function Login() {
             name="password"
             type="password"
             placeholder="Enter your password"
-            icon={<LockIcon />}
+            icon={<Lock width={16} />}
           />
           <ShowError />
           {/* <div className="flex justify-end">

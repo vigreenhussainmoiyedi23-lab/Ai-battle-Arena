@@ -11,7 +11,7 @@ export const RegisterAPI = async (data:{email:string,password:string,username:st
 }
 
 export const LogoutAPI = async () => {
-    const response = await api.post("/api/auth/logout")
+    const response = await api.get("/api/auth/logout")
     return response.data
 }
 

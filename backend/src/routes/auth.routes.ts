@@ -29,7 +29,10 @@ router.post("/register", async (req, res) => {
     setCookie({ id: user._id }, res);
     sendResponse({
       status: 201,
-      json: { message: "User Created Successfully" },
+      json: {
+        message: "User Created Successfully",
+        user: { ...user, password: null },
+      },
       res,
     });
   } catch (error) {
@@ -45,7 +48,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password }: { email: string; password: string } = req.body;
-    
+
     const user = await userModel.findOne({ email }).select("+password");
     if (!user) {
       return sendResponse({
@@ -67,7 +70,7 @@ router.post("/login", async (req, res) => {
     setCookie({ id: user._id }, res);
     sendResponse({
       status: 200,
-      json: { message: "Login Successful" },
+      json: { message: "Login Successful", user: { ...user, password: null } },
       res,
     });
   } catch (error) {}

@@ -1,6 +1,8 @@
-import { MessageSquare, PlusCircle } from "lucide-react";
-import { type ChatMessage } from "../chatSlice";
+import { LogOut, MessageSquare, PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../app/redux/hook";
+import { setActiveChatId } from "../chatSlice";
+import { useAuth } from "../../auth/hooks/useAuth";
 const DEMO_SESSIONS = [
   { chatId: "1", topic: "Project Phoenix", createdAt: "2 hours ago" },
   { chatId: "2", topic: "Optimization Strategy", createdAt: "Yesterday" },
@@ -9,9 +11,16 @@ const DEMO_SESSIONS = [
 ];
 
 const Sidebar = () => {
+  const dispatch = useAppDispatch();
+  const activeChatId = useAppSelector((s) => s.chat.activeChatId);
   const navigate = useNavigate();
+
+  const { LogoutHandler } = useAuth();
   function HandleNewChat() {
     navigate("/chat");
+  }
+  async function handleLogout() {
+    await LogoutHandler();
   }
   return (
     <aside
@@ -107,12 +116,12 @@ const Sidebar = () => {
       {/* Chat History */}
       <div className="flex-1 overflow-y-auto px-3 pb-4 flex flex-col gap-1">
         {DEMO_SESSIONS.map((s) => {
-          const isActive = s.chatId === "";
+          const isActive = s.chatId === activeChatId;
           return (
             <button
               key={s.chatId}
               onClick={() => {
-                console.log(s.chatId);
+                dispatch(setActiveChatId(s.chatId));
               }}
               className="w-full text-left px-3 py-2.5 rounded-lg transition-all duration-150 flex gap-2 items-center group"
               style={{
@@ -155,7 +164,7 @@ const Sidebar = () => {
 
       {/* User Footer */}
       <div
-        className="p-4 border-t flex items-center gap-3"
+        className="p-4 border-t flex items-center  gap-3"
         style={{ borderColor: "var(--border-subtle)" }}
       >
         <div
@@ -178,6 +187,12 @@ const Sidebar = () => {
             Pro Member
           </p>
         </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 rounded bg-linear-to-l  from-blue-400/5 via-blue-500/10 to-blue-600/10 border border-red-500 px-3 py-2 "
+        >
+          <LogOut /> Log Out
+        </button>
       </div>
     </aside>
   );
