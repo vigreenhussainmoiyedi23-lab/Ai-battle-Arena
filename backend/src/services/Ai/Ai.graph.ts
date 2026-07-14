@@ -8,15 +8,18 @@ import {
   END,
 } from "@langchain/langgraph";
 import { z } from "zod/v4";
-import { cohereModel, geminiModel, GroqModel, mistralModel } from "./AI.model.js";
+import {
+  cohereModel,
+  geminiModel,
+  GroqModel,
+  mistralModel,
+} from "./AI.model.js";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-
-
 
 const JudgeSchema = z.object({
   solution1Score: z.number().default(0),
   solution2Score: z.number().default(0),
-  recommendation: z.enum(["solution1", "solution2", "tie"]),
+  recommendation: z.enum([`1`, `2`, `0`]).default(`0`),
 });
 
 const AIBATTLESTATE = new StateSchema({
@@ -50,7 +53,6 @@ const solutionNode: GraphNode<typeof AIBATTLESTATE> = async function (state) {
           : res2.content.map((b) => ("text" in b ? b.text : "")).join(""), // use ai as i dont even know what is this
     };
   } catch (error) {
-    console.log(error);
     return state;
   }
 };

@@ -14,17 +14,25 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    solutionNumber: {
-      type: Number,
-      default: 0, // means user did the message
+    solutionsByAIs: {
+      solution1: {
+        type: String,
+        required: true,
+      },
+      solution2: {
+        type: String,
+        required: true,
+      },
     },
     preferredByUser: {
-      type: Boolean,
-      default: false,
+      type: Number,
+      default: null, // means no prefrence
+      enum: [1, 2],
     },
     preferredByAi: {
-      type: Boolean,
-      default: false,
+      type: Number,
+      default: null, // means tie
+      enum: [1, 2],
     },
   },
   {
