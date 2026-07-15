@@ -2,8 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/redux/hook";
 import {
   chatStart,
-  addUserMessage,
-  addAIResponse,
   clearMessages,
   type ChatMessage,
   type Judgement,
@@ -107,15 +105,15 @@ function SolutionCard({
 
 function JudgeVerdictPanel({ judgement }: { judgement: Judgement }) {
   const rec = judgement.recommendation;
-  const isTie = rec === "tie";
+  const isTie = rec === "0";
   const label = isTie
     ? "TIE"
-    : rec === "solution1"
+    : rec === "1"
       ? "GROQ WINS"
       : "COHERE WINS";
   const subtitle = isTie
     ? "Both models performed equally well"
-    : rec === "solution1"
+    : rec === "2"
       ? "Groq provided the superior response"
       : "Cohere provided the superior response";
 
@@ -269,7 +267,7 @@ const DEMO_MESSAGES: ChatMessage[] = [
     judgement: {
       solution1Score: 9,
       solution2Score: 9,
-      recommendation: "tie",
+      recommendation: "0",
     },
   },
 ];

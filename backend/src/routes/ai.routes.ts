@@ -41,45 +41,40 @@ router.post("/invoke-graph", IsUser, async function (req: any, res) {
 
   try {
     const result = await graph.invoke({
-      messages: messages.map((b) =>
-        b.role === "user"
-          ? new HumanMessage(b.content)
-          : new AIMessage(b.content),
-      ),
+      messages: messages.map((b) => new HumanMessage(b.content)),
     });
     let preferredByAi = result.judgement.recommendation;
-    await messageModel.create({
+    const message = await messageModel.create({
       user: req.user,
       chat,
-      role: "user",
       content: prompt,
       solutionsByAIs: {
         solution1: result.solution1,
         solution2: result.solution2,
       },
-      preferredByUser: null,
-      preferredByAi:
-        preferredByAi === "1" ? 1 : preferredByAi === "2" ? 2 : null,
+      preferredByUser: 0,
+      preferredByAi: preferredByAi === "1" ? 1 : preferredByAi === "2" ? 2 : 0,
     });
-    console.log("messages created successfully");
 
     res.status(200).json({
-      ...result,
       chatId: chat,
+      newMessage: message,
     });
   } catch (error) {
     res.status(500).json({ error });
   }
 });
+
 router.get("/get-chats", IsUser, async (req: any, res) => {
   const chats = await chatModel.find({ user: req.user });
   console.log(chats);
   res.status(200).json({ chats });
 });
+
 router.get("/get-messages/:chatId", IsUser, async (req: any, res) => {
   try {
-    const {chatId}=req.params
-    if(!chatId || !mongoose.Types.ObjectId.isValid(chatId)){
+    const { chatId } = req.params;
+    if (!chatId || !mongoose.Types.ObjectId.isValid(chatId)) {
       return res.status(400).json({ error: "Invalid chatId" });
     }
     const chats = await messageModel.find({
@@ -92,4 +87,5 @@ router.get("/get-messages/:chatId", IsUser, async (req: any, res) => {
     res.status(500).json({ error });
   }
 });
+
 export default router;

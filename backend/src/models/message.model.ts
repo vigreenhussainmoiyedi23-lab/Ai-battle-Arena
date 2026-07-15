@@ -4,12 +4,6 @@ const messageSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
     chat: { type: mongoose.Schema.Types.ObjectId, ref: "chat", required: true },
-    role: {
-      type: String,
-      default: "user",
-      enum: ["user", "ai"],
-      required: true,
-    },
     content: {
       type: String,
       required: true,
@@ -26,13 +20,25 @@ const messageSchema = new mongoose.Schema(
     },
     preferredByUser: {
       type: Number,
-      default: null, // means no prefrence
-      enum: [1, 2],
+      default: 0, // means no prefrence
+      enum: [1, 2, 0],
     },
     preferredByAi: {
       type: Number,
-      default: null, // means tie
-      enum: [1, 2],
+      default: 0, // means tie
+      enum: [1, 2, 0],
+    },
+    solutionScore: {
+      solution1Score: {
+        type: Number,
+        minimum: 0,
+        maximum: 10,
+      },
+      solution2Score: {
+        type: Number,
+        minimum: 0,
+        maximum: 10,
+      },
     },
   },
   {

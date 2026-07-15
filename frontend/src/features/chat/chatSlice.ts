@@ -4,15 +4,15 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 export interface Judgement {
   solution1Score: number;
   solution2Score: number;
-  recommendation: "solution1" | "solution2" | "tie";
+  recommendation: "1" | "2" | "0";
 }
 
 export interface ChatMessage {
   id: string;
   role: "user" | "ai";
-  content?: string;           // for user messages
-  solution1?: string;         // ai response 1 (Groq)
-  solution2?: string;         // ai response 2 (Cohere)
+  content?: string; // for user messages
+  solution1?: string; // ai response 1 (Groq)
+  solution2?: string; // ai response 2 (Cohere)
   judgement?: Judgement;
 }
 
@@ -46,11 +46,10 @@ const chatSlice = createSlice({
       state.isLoading = true;
       state.error = null;
     },
-    addUserMessage: (state, action: PayloadAction<ChatMessage>) => {
-      state.messages.push(action.payload);
-    },
-    addAIResponse: (state, action: PayloadAction<ChatMessage>) => {
+    chatSuccess: (state) => {
       state.isLoading = false;
+    },
+    addMessage: (state, action: PayloadAction<ChatMessage>) => {
       state.messages.push(action.payload);
     },
     chatFailure: (state, action: PayloadAction<string>) => {
@@ -75,8 +74,8 @@ const chatSlice = createSlice({
 
 export const {
   chatStart,
-  addUserMessage,
-  addAIResponse,
+  chatSuccess,
+  addMessage,
   chatFailure,
   setActiveChatId,
   setSessions,
