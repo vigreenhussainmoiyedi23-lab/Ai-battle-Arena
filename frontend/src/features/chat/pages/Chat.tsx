@@ -5,6 +5,8 @@ import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { SendHorizonal, Trophy } from "lucide-react";
 import { useChat } from "../hooks/useChat";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 /* ── Sub-components ── */
 function ScoreBadge({ score, color }: { score: number; color: string }) {
@@ -86,12 +88,33 @@ function SolutionCard({
       </div>
 
       {/* Card Body */}
-      <p
-        className="text-sm leading-relaxed flex-1"
-        style={{ color: "var(--text-primary)" }}
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ children }) => (
+            <h1 className="text-2xl font-bold mb-4 text-white">{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="text-xl font-semibold mt-5 mb-3 text-white">
+              {children}
+            </h2>
+          ),
+          p: ({ children }) => <p className="mb-3 text-gray-300">{children}</p>,
+          ul: ({ children }) => (
+            <ul className="list-disc ml-6 mb-3">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal ml-6 mb-3">{children}</ol>
+          ),
+          code: ({ children }) => (
+            <code className="bg-zinc-800 px-1 rounded text-cyan-400">
+              {children}
+            </code>
+          ),
+        }}
       >
         {content}
-      </p>
+      </ReactMarkdown>
     </div>
   );
 }
@@ -261,7 +284,7 @@ export default function Chat() {
     GetChats();
   }, []);
   useEffect(() => {
-    dispatch(clearMessages())
+    dispatch(clearMessages());
     if (!id) {
       dispatch(setActiveChatId(null));
     }
