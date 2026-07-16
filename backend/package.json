@@ -17,7 +17,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch server.ts",
-    "start": "tsx server.ts"
+    "start": "node dist/server.js",
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
