@@ -7,6 +7,7 @@ import cors from "cors";
 import config from "./configs/config.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import process from "process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,8 +27,9 @@ app.use(morgan("dev"));
 
 app.use("/api/auth", authRouter);
 app.use("/api/AI", AiRouter);
-
-const distPath = path.join(__dirname, "../public/dist");
+console.log("__dirname:", __dirname);
+const distPath = path.join(process.cwd(), "public", "dist");
+console.log("distPath:", distPath);
 app.use(express.static(distPath));
 app.get("*name", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
