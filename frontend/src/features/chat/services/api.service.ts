@@ -18,7 +18,7 @@ function isApiError(error: unknown): error is ApiError {
 
 export const GetChatAPI = async () => {
   try {
-    const response = await api.get(`/api/get-chats`);
+    const response = await api.get(`/api/AI/get-chats`);
     return response.data;
   } catch (error) {
     if (isApiError(error)) return error?.response?.data;
@@ -26,7 +26,7 @@ export const GetChatAPI = async () => {
 };
 
 export const GetMessagesAPI = async (chatId: string) => {
-  const response = await api.get(`/api/get-messages/${chatId}`);
+  const response = await api.get(`/api/AI/get-messages/${chatId}`);
   return response.data;
 };
 

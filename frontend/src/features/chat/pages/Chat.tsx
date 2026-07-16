@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../../app/redux/hook";
 import {
   chatStart,
   clearMessages,
+  setActiveChatId,
   type ChatMessage,
   type Judgement,
 } from "../chatSlice";
@@ -277,7 +278,8 @@ export default function Chat() {
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((s) => s.chat);
   const { id } = useParams();
-  
+  if(id) dispatch(setActiveChatId(id));
+  if(!id)dispatch(setActiveChatId(null));
   const [messages, setMessages] = useState<ChatMessage[]>(DEMO_MESSAGES);
   const [inputValue, setInputValue] = useState("");
   const endRef = useRef<HTMLDivElement>(null);

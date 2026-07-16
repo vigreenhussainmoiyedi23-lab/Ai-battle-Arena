@@ -6,9 +6,9 @@ import {
   GetMessagesAPI,
   InvokeGraphAPI,
 } from "../services/api.service";
+export const useChat = () => {
 const dispatch = useAppDispatch();
 const navigate = useNavigate();
-export const useChat = () => {
   async function InvokeGraph(data: { prompt: string; chatId?: string }) {
     try {
       dispatch(chatStart());
