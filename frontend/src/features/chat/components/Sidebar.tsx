@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../app/redux/hook";
 import { setActiveChatId } from "../chatSlice";
 import { useAuth } from "../../auth/hooks/useAuth";
-const DEMO_SESSIONS = [
-  { chatId: "1", topic: "Project Phoenix", createdAt: "2 hours ago" },
-  { chatId: "2", topic: "Optimization Strategy", createdAt: "Yesterday" },
-  { chatId: "3", topic: "Code Architecture", createdAt: "Jul 11" },
-  { chatId: "4", topic: "API Design Patterns", createdAt: "Jul 9" },
-];
+
 
 const Sidebar = () => {
+
   const dispatch = useAppDispatch();
+  const {sessions} = useAppSelector((s) => s.chat);
   const activeChatId = useAppSelector((s) => s.chat.activeChatId);
   const navigate = useNavigate();
 
@@ -115,13 +112,14 @@ const Sidebar = () => {
 
       {/* Chat History */}
       <div className="flex-1 overflow-y-auto px-3 pb-4 flex flex-col gap-1">
-        {DEMO_SESSIONS.map((s) => {
+        {sessions.map((s) => {
           const isActive = s.chatId === activeChatId;
           return (
             <button
               key={s.chatId}
               onClick={() => {
                 dispatch(setActiveChatId(s.chatId));
+                navigate(`/chat/${s.chatId}`);
               }}
               className="w-full text-left px-3 py-2.5 rounded-lg transition-all duration-150 flex gap-2 items-center group"
               style={{

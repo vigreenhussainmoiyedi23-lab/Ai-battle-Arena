@@ -1,18 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/redux/hook";
-import {
-  chatStart,
-  clearMessages,
-  setActiveChatId,
-  type ChatMessage,
-  type Judgement,
-} from "../chatSlice";
+import { clearMessages, setActiveChatId, type ChatMessage } from "../chatSlice";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { SendHorizonal, Trophy } from "lucide-react";
-
-/* ── Helpers ── */
-const uid = () => Math.random().toString(36).slice(2);
+import { useChat } from "../hooks/useChat";
 
 /* ── Sub-components ── */
 function ScoreBadge({ score, color }: { score: number; color: string }) {
@@ -104,14 +96,17 @@ function SolutionCard({
   );
 }
 
-function JudgeVerdictPanel({ judgement }: { judgement: Judgement }) {
-  const rec = judgement.recommendation;
+function JudgeVerdictPanel({
+  rec,
+  solution1Score,
+  solution2Score,
+}: {
+  rec: "1" | "2" | "0";
+  solution1Score: number;
+  solution2Score: number;
+}) {
   const isTie = rec === "0";
-  const label = isTie
-    ? "TIE"
-    : rec === "1"
-      ? "GROQ WINS"
-      : "COHERE WINS";
+  const label = isTie ? "TIE" : rec === "1" ? "GROQ WINS" : "COHERE WINS";
   const subtitle = isTie
     ? "Both models performed equally well"
     : rec === "2"
@@ -154,7 +149,7 @@ function JudgeVerdictPanel({ judgement }: { judgement: Judgement }) {
               color: "rgba(245,158,11,0.7)",
             }}
           >
-            Groq: {judgement.solution1Score}/10
+            Groq: {solution1Score}/10
           </span>
           <span
             className="text-xs px-2 py-0.5 rounded-full"
@@ -164,7 +159,7 @@ function JudgeVerdictPanel({ judgement }: { judgement: Judgement }) {
               color: "rgba(245,158,11,0.7)",
             }}
           >
-            Cohere: {judgement.solution2Score}/10
+            Cohere: {solution2Score}/10
           </span>
         </div>
       </div>
@@ -184,8 +179,12 @@ function JudgeVerdictPanel({ judgement }: { judgement: Judgement }) {
 }
 
 function MessageGroup({ msg }: { msg: ChatMessage }) {
-  if (msg.role === "user") {
-    return (
+  const { solution1, solution2 } = msg.solutionsByAIs;
+  const { solution1Score, solution2Score } = msg.solutionScore;
+  const rec = msg.preferredByAi;
+
+  return (
+    <div className="flex flex-col gap-4 animate-slide-in">
       <div className="flex justify-end animate-fade-in">
         <div
           className="max-w-[65%] rounded-2xl rounded-tr-sm px-4 py-3 text-sm"
@@ -198,16 +197,6 @@ function MessageGroup({ msg }: { msg: ChatMessage }) {
           {msg.content}
         </div>
       </div>
-    );
-  }
-
-  const sol1 = msg.solution1 ?? "";
-  const sol2 = msg.solution2 ?? "";
-  const judgement = msg.judgement;
-  const rec = judgement?.recommendation;
-
-  return (
-    <div className="flex flex-col gap-4 animate-slide-in">
       {/* VS badge */}
       <div className="flex items-center gap-3">
         <div
@@ -234,87 +223,60 @@ function MessageGroup({ msg }: { msg: ChatMessage }) {
       <div className="flex gap-4">
         <SolutionCard
           title="Groq"
-          content={sol1}
-          score={judgement?.solution1Score ?? 0}
-          isWinner={rec === "solution1"}
+          content={solution1!}
+          score={solution1Score ?? 0}
+          isWinner={rec === "1"}
           accentColor="var(--cyan)"
           glowColor="var(--cyan-glow)"
         />
         <SolutionCard
           title="Cohere"
-          content={sol2}
-          score={judgement?.solution2Score ?? 0}
-          isWinner={rec === "solution2"}
+          content={solution2!}
+          score={solution2Score ?? 0}
+          isWinner={rec === "2"}
           accentColor="var(--purple)"
           glowColor="var(--purple-glow)"
         />
       </div>
 
-      {/* Judge Verdict */}
-      {judgement && <JudgeVerdictPanel judgement={judgement} />}
+      <JudgeVerdictPanel {...{ rec, solution1Score, solution2Score }} />
     </div>
   );
 }
-
-
-
-const DEMO_MESSAGES: ChatMessage[] = [
-  { id: "m1", role: "user", content: "hi" },
-  {
-    id: "m2",
-    role: "ai",
-    solution1: "Hello! How can I help you today?",
-    solution2: "Hello! How can I assist you today?",
-    judgement: {
-      solution1Score: 9,
-      solution2Score: 9,
-      recommendation: "0",
-    },
-  },
-];
 
 /* ── Main Chat Component ── */
 export default function Chat() {
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((s) => s.chat);
   const { id } = useParams();
-  if(id) dispatch(setActiveChatId(id));
-  if(!id)dispatch(setActiveChatId(null));
-  const [messages, setMessages] = useState<ChatMessage[]>(DEMO_MESSAGES);
+  const { GetChats, InvokeGraph, GetMessages } = useChat();
+  const { messages } = useAppSelector((state) => state.chat);
   const [inputValue, setInputValue] = useState("");
-  const endRef = useRef<HTMLDivElement>(null);
 
+  const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  useEffect(() => {
+    GetChats();
+  }, []);
+  useEffect(() => {
+    dispatch(clearMessages())
+    if (!id) {
+      dispatch(setActiveChatId(null));
+    }
+    dispatch(setActiveChatId(id!));
+    GetMessages(id!);
+  }, [id]);
 
   const handleSend = async () => {
     const text = inputValue.trim();
     if (!text) return;
-
-    const userMsg: ChatMessage = { id: uid(), role: "user", content: text };
-    setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
-    dispatch(chatStart());
-
-    // Simulate API call — replace with real fetch to /api/invoke-graph
-    setTimeout(() => {
-      const aiMsg: ChatMessage = {
-        id: uid(),
-        role: "ai",
-        solution1: `Groq's answer to: "${text}"`,
-        solution2: `Cohere's perspective on: "${text}"`,
-        judgement: {
-          solution1Score: Math.floor(Math.random() * 3) + 7,
-          solution2Score: Math.floor(Math.random() * 3) + 7,
-          recommendation: ["solution1", "solution2", "tie"][
-            Math.floor(Math.random() * 3)
-          ] as "solution1" | "solution2" | "tie",
-        },
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-      dispatch(clearMessages()); // reset loading
-    }, 1500);
+    await InvokeGraph({
+      prompt: text,
+      chatId: id,
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -324,21 +286,19 @@ export default function Chat() {
     }
   };
 
- 
-
   return (
     <div
       className="flex h-screen w-full overflow-hidden"
       style={{ background: "var(--bg-floor)" }}
     >
       {/* ─── Sidebar ─── */}
-      <Sidebar  />
+      <Sidebar />
 
       {/* ─── Main Panel ─── */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Top Bar */}
         <header
-          className="flex items-center px-8 py-4 border-b flex-shrink-0"
+          className="flex items-center px-8 py-4 border-b shrink-0"
           style={{ borderColor: "var(--border-subtle)" }}
         >
           <div>
@@ -408,9 +368,8 @@ export default function Chat() {
             </div>
           )}
 
-          {messages.map((msg) => (
-            <MessageGroup key={msg.id} msg={msg} />
-          ))}
+          {messages.length > 0 &&
+            messages.map((msg) => <MessageGroup key={msg._id} msg={msg} />)}
 
           {/* Loading Indicator */}
           {isLoading && (
@@ -448,7 +407,7 @@ export default function Chat() {
 
         {/* ─── Input Bar ─── */}
         <div
-          className="px-8 py-5 border-t flex-shrink-0"
+          className="px-8 py-5 border-t shrink-0"
           style={{
             borderColor: "var(--border-subtle)",
             background: "rgba(9,11,16,0.8)",
@@ -499,7 +458,7 @@ export default function Chat() {
             <button
               onClick={handleSend}
               disabled={!inputValue.trim() || isLoading}
-              className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
                 background: "linear-gradient(135deg, var(--cyan), #3a7bd5)",
                 boxShadow: "0 0 12px var(--cyan-glow)",

@@ -40,6 +40,7 @@ const messageSchema = new mongoose.Schema(
         maximum: 10,
       },
     },
+   
   },
   {
     timestamps: true,

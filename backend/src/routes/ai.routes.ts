@@ -15,7 +15,7 @@ const router = Router();
 
 router.post("/invoke-graph", IsUser, async function (req: any, res) {
   const { prompt, chatId } = req.body;
-  let chat = chatId || null;
+  let chat = await chatModel.findById(chatId);
 
   if (!chat) {
     const { content } = await geminiModel.invoke([
@@ -25,17 +25,15 @@ router.post("/invoke-graph", IsUser, async function (req: any, res) {
       new HumanMessage(`this is the users prompt ${prompt}`),
     ]);
 
-    chat = (
-      await chatModel.create({
-        user: req.user,
-        topic: typeof content === "string" ? content : "",
-      })
-    )._id;
+    chat = await chatModel.create({
+      user: req.user,
+      topic: typeof content === "string" ? content : "",
+    });
   }
 
   let messages: { role: string; content: string; isCurrent: boolean }[] =
     await messageModel.find({
-      chat,
+      chat:chat._id,
     });
   messages.push({ role: "user", content: prompt, isCurrent: true });
 
@@ -46,18 +44,22 @@ router.post("/invoke-graph", IsUser, async function (req: any, res) {
     let preferredByAi = result.judgement.recommendation;
     const message = await messageModel.create({
       user: req.user,
-      chat,
+      chat:chat._id,
       content: prompt,
       solutionsByAIs: {
         solution1: result.solution1,
         solution2: result.solution2,
+      },
+      solutionScore: {
+        solution1Score: result.judgement.solution1Score,
+        solution2Score: result.judgement.solution2Score,
       },
       preferredByUser: 0,
       preferredByAi: preferredByAi === "1" ? 1 : preferredByAi === "2" ? 2 : 0,
     });
 
     res.status(200).json({
-      chatId: chat,
+      chat,
       newMessage: message,
     });
   } catch (error) {
@@ -77,12 +79,11 @@ router.get("/get-messages/:chatId", IsUser, async (req: any, res) => {
     if (!chatId || !mongoose.Types.ObjectId.isValid(chatId)) {
       return res.status(400).json({ error: "Invalid chatId" });
     }
-    const chats = await messageModel.find({
+    const messages = await messageModel.find({
       user: req.user,
       chat: req.params.chatId,
     });
-    console.log(chats);
-    res.status(200).json({ chats });
+    res.status(200).json({ messages });
   } catch (error) {
     res.status(500).json({ error });
   }

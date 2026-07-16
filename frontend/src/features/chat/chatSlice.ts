@@ -8,16 +8,23 @@ export interface Judgement {
 }
 
 export interface ChatMessage {
-  id: string;
-  role: "user" | "ai";
+  _id: string;
   content?: string; // for user messages
-  solution1?: string; // ai response 1 (Groq)
-  solution2?: string; // ai response 2 (Cohere)
-  judgement?: Judgement;
+  solutionsByAIs: {
+    solution1?: string; // ai response 1 (Groq)
+    solution2?: string; // ai response 2 (Cohere)
+  };
+  solutionScore: {
+    solution1Score: number;
+    solution2Score: number;
+  };
+  preferredByUser: "1" | "2" | "0";
+  preferredByAi: "1" | "2" | "0";
+  createdAt: string;
 }
 
 export interface ChatSession {
-  chatId: string; 
+  chatId: string;
   topic: string;
   createdAt: string;
 }
@@ -56,7 +63,7 @@ const chatSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-    setActiveChatId: (state, action: PayloadAction<string>) => {
+    setActiveChatId: (state, action: PayloadAction<string | null>) => {
       state.activeChatId = action.payload;
     },
     setSessions: (state, action: PayloadAction<ChatSession[]>) => {

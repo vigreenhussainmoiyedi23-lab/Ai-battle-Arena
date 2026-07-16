@@ -35,7 +35,7 @@ export const InvokeGraphAPI = async (data: {
   chatId?: string;
 }) => {
   try {
-    const response = await api.post(`/api/invoke-graph`, data);
+    const response = await api.post(`/api/AI/invoke-graph`, data);
     return response.data;
   } catch (error) {
     if (isApiError(error)) return error?.response?.data;
